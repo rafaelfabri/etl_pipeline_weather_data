@@ -27,12 +27,33 @@ def atribuindo_senha():
         
         return ' ', ' '
 
+
+def criando_query_para_requisicao():
+    
+    link_site = 'https://api.meteomatics.com'
+    
+    #periodo de requisicao - sempre referente a ontem
+    ontem = (datetime.datetime.today() - datetime.timedelta(days = 1)).strftime('%Y-%m-%d') + 'T00:00:00Z'
+    hoje = datetime.datetime.today().strftime('%Y-%m-%d') + 'T00:00:00Z'
+    intervalo = 'PT1H'
+    data_e_intervalo_de_dados = '{}--{}:{}'.format(ontem, hoje, intervalo)
     
     
+    #variaveis de entracao
+    variaveis = 't_2m:C,precip_1h:mm,wind_speed_10m:ms'
 
-def requisicao_dados(login, senha):
+    
+    #lat_e_long
+    lat_long = '-23.7245,-46.6775'
+    arquivo = 'csv'
+    
+    
+    query = '{}/{}/{}/{}/{}'.format(link_site, data_e_intervalo_de_dados, variaveis, lat_long, arquivo)
+    
+    return query
+    
 
-    query = 'https://api.meteomatics.com/2024-01-20T00:00:00Z--2024-01-23T00:00:00Z:PT1H/t_2m:C/52.520551,13.461804/csv'
+def requisicao_dados(login, senha, query):
     
     
     try:
@@ -41,26 +62,26 @@ def requisicao_dados(login, senha):
     
         if r.status_code == 200:
             
-            print('Success in request!')
+            print('Requisicao feita com Sucesso!')
             
-            data_csv = r.content.decode('utf-8')
+            dados_csv = r.content.decode('utf-8')
             
-            data_csv = csv.reader(data_csv.splitlines(), delimiter = ';')
+            dados_csv = csv.reader(dados_csv.splitlines(), delimiter = ';')
+                        
+            lista = []
             
-            list_of_data = []
-            
-            for row in data_csv:
+            for row in dados_csv:
                 
-                list_of_data.append(row)
-            
-            df = pd.DataFrame(list_of_data)
-            
+                lista.append(row)
+                        
+            df = pd.DataFrame(lista)
+                        
             return df
             
         
         else:
             
-            print('Resquest denied')
+            print('Resquisicao Negada')
             
             df = pd.DataFrame()
             
@@ -69,7 +90,7 @@ def requisicao_dados(login, senha):
             
     except:
         
-        print('error - link error')
+        print('link com erro')
         
         df = pd.DataFrame()
             
@@ -80,23 +101,27 @@ def requisicao_dados(login, senha):
 
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":   
     
     
     login, senha = atribuindo_senha()
         
-
+    query = criando_query_para_requisicao()
     
+
     if login != ' ':
     
-        df = requisicao_dados(login, senha)
+        df = requisicao_dados(login, senha, query)
         
         if df.shape[0] > 0:
+            
+            df.columns = ['DATA', 'TEMPERATURA_CELSIUS', 'PRECIP_MM', 'VELOCIDADE_VENTO_MS']
+            
+            df.drop(labels = [0], axis = 0, inplace = True)
             
             print(df)
         
         
-        
     else:
         
-        print('sem senha')
+        print('sem login ou senha')

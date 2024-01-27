@@ -3,7 +3,11 @@ import pandas as pd
 from requests.auth import HTTPBasicAuth
 import csv
 import datetime 
+import boto3
 
+
+
+    
 
 
 def atribuindo_senha():
@@ -14,10 +18,14 @@ def atribuindo_senha():
             
             df = pd.read_csv(f)
             
-            login = df.loc[0, 'login']
-            senha = df.loc[0, 'senha']
+            login_api = df.loc[0, 'login']
+            senha_api = df.loc[0, 'senha']
             
-            return login, senha
+            login_aws = df.loc[1, 'login']
+            senha_aws = df.loc[1, 'senha']
+            
+            
+            return login_api, senha_api, login_aws, senha_aws
 
             
     except:
@@ -33,8 +41,8 @@ def criando_query_para_requisicao():
     link_site = 'https://api.meteomatics.com'
     
     #periodo de requisicao - sempre referente a ontem
-    ontem = (datetime.datetime.today() - datetime.timedelta(days = 1)).strftime('%Y-%m-%d') + 'T00:00:00Z'
-    hoje = datetime.datetime.today().strftime('%Y-%m-%d') + 'T00:00:00Z'
+    ontem = (datetime.datetime.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d') + 'T00:00:00Z'
+    hoje = (datetime.datetime.today() + datetime.timedelta(days = 2)).strftime('%Y-%m-%d') + 'T23:00:00Z'
     intervalo = 'PT1H'
     data_e_intervalo_de_dados = '{}--{}:{}'.format(ontem, hoje, intervalo)
     
@@ -59,7 +67,8 @@ def requisicao_dados(login, senha, query):
     try:
         
         r = requests.get(query, auth = HTTPBasicAuth(login, senha))
-    
+        print(query)
+        print(r.status_code)
         if r.status_code == 200:
             
             print('Requisicao feita com Sucesso!')
@@ -98,20 +107,55 @@ def requisicao_dados(login, senha, query):
         
 
 
+def aws_s3(login, senha, df):
+    
+    df.to_csv('test.csv')
+    
+    NOME_DO_ARQUIVO_LOCAL = 'test.csv'
+    NOME_DO_ARQUIVO_NA_AWS = 'test.csv'
+    
+    
+    AWS_ACCESS_KEY = login
+    AWS_SECRET_KEY = senha
+    AWS_S3_BUCKET_NAME = 'pipeline-weather-data'
+    AWS_REGION = 'sa-east-1'
+    
+    s3_client = boto3.client(service_name = 's3',
+                             region_name  = AWS_REGION,
+                             aws_access_key_id = AWS_ACCESS_KEY,
+                             aws_secret_access_key = AWS_SECRET_KEY)
+    
+    print(s3_client)
+    
+    response = s3_client.upload_file(NOME_DO_ARQUIVO_LOCAL, AWS_S3_BUCKET_NAME, NOME_DO_ARQUIVO_NA_AWS)
 
+    
+    try:
+        
+        
+        print('file {}'.format(response))
+        
+    except:
+        
+        
+        print('sem resposta')
+    
+    
 
 
 if __name__ == "__main__":   
     
     
-    login, senha = atribuindo_senha()
+    login_api, senha_api, login_aws, senha_aws = atribuindo_senha()
         
     query = criando_query_para_requisicao()
     
+    print(login_aws)
+    print(senha_aws)    
 
-    if login != ' ':
+    if login_api != ' ':
     
-        df = requisicao_dados(login, senha, query)
+        df = requisicao_dados(login_api, senha_api, query)
         
         if df.shape[0] > 0:
             
@@ -120,6 +164,9 @@ if __name__ == "__main__":
             df.drop(labels = [0], axis = 0, inplace = True)
             
             print(df)
+            
+            
+            aws_s3(login_aws, senha_aws, df)
         
         
     else:

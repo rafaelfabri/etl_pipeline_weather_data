@@ -4,12 +4,15 @@ from requests.auth import HTTPBasicAuth
 import csv
 import datetime 
 import boto3
+import mysql.connector
+import os
 
 
+    # +---+---+---+---+---+---+---+---+---+   
+    # | F | u | n | c | t | i | o | n | s |
+    # +---+---+---+---+---+---+---+---+---+      
 
-    
-
-
+#1 - FUNCTION
 def atribuindo_acessos():
     
     try:
@@ -43,22 +46,21 @@ def atribuindo_acessos():
         return ' ', ' '
 
 
+#2 - FUNCTION
 def criando_query_para_requisicao():
     
     link_site = 'https://api.meteomatics.com'
     
-    #periodo de requisicao - sempre referente a ontem
+    #periodo de requisicao - sempre referente a amanha
     ontem = (datetime.datetime.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d') + 'T00:00:00Z'
-    hoje = (datetime.datetime.today() + datetime.timedelta(days = 2)).strftime('%Y-%m-%d') + 'T23:00:00Z'
+    hoje = (datetime.datetime.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d') + 'T23:00:00Z'
     intervalo = 'PT1H'
     data_e_intervalo_de_dados = '{}--{}:{}'.format(ontem, hoje, intervalo)
-    
-    
+        
     #variaveis de entracao
     variaveis = 't_2m:C,precip_1h:mm,wind_speed_10m:ms'
-
     
-    #lat_e_long
+    #lat_e_long SAO PAULO
     lat_long = '-23.7245,-46.6775'
     arquivo = 'csv'
     
@@ -68,6 +70,7 @@ def criando_query_para_requisicao():
     return query
     
 
+#3 - FUNCTION
 def requisicao_dados(login, senha, query):
     
     
@@ -111,72 +114,138 @@ def requisicao_dados(login, senha, query):
         df = pd.DataFrame()
             
         return df
-        
 
 
-def aws_s3(login, senha, df):
+#4 - FUNCTION
+def transformacao_dados(df):
     
-    df.to_csv('test.csv')
+    df.columns = ['DATA', 'TEMPERATURA_CELSIUS', 'PRECIP_MM', 'VELOCIDADE_VENTO_MS']
+            
+    df.drop(labels = [0], axis = 0, inplace = True)
+            
+    df['DATA'] = df['DATA'].str[0:16]
     
-    NOME_DO_ARQUIVO_LOCAL = 'test.csv'
-    NOME_DO_ARQUIVO_NA_AWS = 'test.csv'
+    df['CIDADE'] = 'SAO PAULO MIRANTE'    
+    
+    df = df[['CIDADE', 'DATA', 'TEMPERATURA_CELSIUS', 'PRECIP_MM', 'VELOCIDADE_VENTO_MS']]
+
+    df['DATA'] = pd.to_datetime(df['DATA'], format = '%Y-%m-%d %H:%M')
+    df['TEMPERATURA_CELSIUS'] = df['TEMPERATURA_CELSIUS'].astype('float')
+    df['PRECIP_MM'] = df['PRECIP_MM'].astype('float')
+    df['VELOCIDADE_VENTO_MS'] = df['VELOCIDADE_VENTO_MS'].astype('float')
+
+    return df
+
+#5 - FUNCTION
+def aws_s3(LOGIN, SENHA, df):
+    
+    data = (datetime.datetime.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d')
+            
+    nome_arquivo = 'SAO-PAULO-MIRANTE-dt-' + data + '.csv'       
+    
+    NOME_DO_ARQUIVO_LOCAL = nome_arquivo
+    NOME_DO_ARQUIVO_NA_AWS = nome_arquivo
     
     
-    AWS_ACCESS_KEY = login
-    AWS_SECRET_KEY = senha
+    df.to_csv(NOME_DO_ARQUIVO_LOCAL, index = False)
+    
+    
+    AWS_ACCESS_KEY = LOGIN
+    AWS_SECRET_KEY = SENHA
     AWS_S3_BUCKET_NAME = 'pipeline-weather-data'
     AWS_REGION = 'sa-east-1'
     
     s3_client = boto3.client(service_name = 's3',
                              region_name  = AWS_REGION,
                              aws_access_key_id = AWS_ACCESS_KEY,
-                             aws_secret_access_key = AWS_SECRET_KEY)
+                             aws_secret_access_key = AWS_SECRET_KEY) 
     
-    print(s3_client)
-    
-    response = s3_client.upload_file(NOME_DO_ARQUIVO_LOCAL, AWS_S3_BUCKET_NAME, NOME_DO_ARQUIVO_NA_AWS)
 
     
     try:
         
-        
+        response = s3_client.upload_file(NOME_DO_ARQUIVO_LOCAL, AWS_S3_BUCKET_NAME, NOME_DO_ARQUIVO_NA_AWS)
         print('file {}'.format(response))
-        
+        os.remove(NOME_DO_ARQUIVO_LOCAL)
+
     except:
         
         
         print('sem resposta')
     
-    
-def aws_rds_mysql():
-    print('em construcao')
 
+#6 - FUNCTION
+def aws_rds_mysql_insert(USER, PASSWORD, HOSTNAME, PORT, DATABASE, df):
+       
+    
+    df_lista = df.values.tolist()
+    
+    
+    conn = mysql.connector.connect(host = HOSTNAME,
+                                   user = USER,
+                                   password = PASSWORD,
+                                   database = DATABASE,
+                                   port = PORT)
+
+    cursor = conn.cursor()
+    
+    query_insert = '''INSERT INTO datawarehouse.pipeline_weather_data 
+                      (CIDADE, DATA_HORA, TEMPERATURA_CELSIUS, PRECIP_MM, VELICIDADE_VENTO_MS)
+                      VALUES (%s, %s, %s, %s, %s)'''
+    
+    
+    cursor.executemany(query_insert, df_lista)
+    
+    conn.commit()
+    
+
+    conn.close()
+
+
+
+
+
+    # +---+---+---+---+ 
+    # | M | a | i | n |
+    # +---+---+---+---+
 
 if __name__ == "__main__":   
+    
+    # +---+---+---+---+---+---+---+ 
+    # | E | x | t | r | a | c | t |
+    # +---+---+---+---+---+---+---+
     
     
     login_api, senha_api, login_aws, senha_aws, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds  = atribuindo_acessos()
         
-    query = criando_query_para_requisicao()
+    query_api = criando_query_para_requisicao()
     
 
     if login_api != ' ':
     
-        df = requisicao_dados(login_api, senha_api, query)
+        df = requisicao_dados(login_api, senha_api, query_api)
+        
         
         if df.shape[0] > 0:
             
-            df.columns = ['DATA', 'TEMPERATURA_CELSIUS', 'PRECIP_MM', 'VELOCIDADE_VENTO_MS']
             
-            df.drop(labels = [0], axis = 0, inplace = True)
+            # +---+---+---+---+---+---+---+---+---+  
+            # | T | r | a | n | s | f | o | r | m |   
+            # +---+---+---+---+---+---+---+---+---+         
+    
+            df = transformacao_dados(df)
+                    
             
-            print(df)
+            # +---+---+---+---+
+            # | L | o | a | d |  
+            # +---+---+---+---+       
             
-            
-            #aws_s3(login_aws, senha_aws, df)
+            aws_s3(login_aws, senha_aws, df)
         
-            #aws_rds_mysql()
+            aws_rds_mysql_insert(login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds, df)
         
+
+            
     else:
         
         print('sem login ou senha')

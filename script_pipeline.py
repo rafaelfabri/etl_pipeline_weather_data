@@ -10,7 +10,7 @@ import boto3
     
 
 
-def atribuindo_senha():
+def atribuindo_acessos():
     
     try:
         
@@ -24,8 +24,15 @@ def atribuindo_senha():
             login_aws = df.loc[1, 'login']
             senha_aws = df.loc[1, 'senha']
             
+            login_aws_rds = df.loc[2, 'login']
+            senha_aws_rds = df.loc[2, 'senha']
+            host_aws_rds  = df.loc[2, 'hostname']
+            port_aws_rds  = df.loc[2, 'port']
+            database_aws_rds = df.loc[2, 'database']
             
-            return login_api, senha_api, login_aws, senha_aws
+            
+            
+            return login_api, senha_api, login_aws, senha_aws, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds
 
             
     except:
@@ -141,17 +148,17 @@ def aws_s3(login, senha, df):
         print('sem resposta')
     
     
+def aws_rds_mysql():
+    print('em construcao')
 
 
 if __name__ == "__main__":   
     
     
-    login_api, senha_api, login_aws, senha_aws = atribuindo_senha()
+    login_api, senha_api, login_aws, senha_aws, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds  = atribuindo_acessos()
         
     query = criando_query_para_requisicao()
     
-    print(login_aws)
-    print(senha_aws)    
 
     if login_api != ' ':
     
@@ -166,8 +173,9 @@ if __name__ == "__main__":
             print(df)
             
             
-            aws_s3(login_aws, senha_aws, df)
+            #aws_s3(login_aws, senha_aws, df)
         
+            #aws_rds_mysql()
         
     else:
         

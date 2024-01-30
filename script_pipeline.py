@@ -15,27 +15,23 @@ import os
 #1 - FUNCTION
 def atribuindo_acessos():
     
+        
     try:
         
-        with open('/home/rafaelfabrichimidt/Documentos/Projetos/Python/codigos/pipeline_api_weather/senhas/senhas.csv', 'r') as f:
-            
-            df = pd.read_csv(f)
-            
-            login_api = df.loc[0, 'login']
-            senha_api = df.loc[0, 'senha']
-            
-            login_aws = df.loc[1, 'login']
-            senha_aws = df.loc[1, 'senha']
-            
-            login_aws_rds = df.loc[2, 'login']
-            senha_aws_rds = df.loc[2, 'senha']
-            host_aws_rds  = df.loc[2, 'hostname']
-            port_aws_rds  = df.loc[2, 'port']
-            database_aws_rds = df.loc[2, 'database']
-            
-            
-            
-            return login_api, senha_api, login_aws, senha_aws, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds
+        login_api = os.environ.get("LOGIN_API_WEATHER")
+        senha_api = os.environ.get("SENHA_API_WEATHER")
+        
+        login_aws_s3 = os.environ.get("LOGIN_AWS_S3")
+        senha_aws_s3 = os.environ.get("SENHA_AWS_S3")
+        
+        login_aws_rds = os.environ.get("LOGIN_AWS_RDS")
+        senha_aws_rds = os.environ.get("SENHA_AWS_RDS")
+        host_aws_rds = os.environ.get("HOST_AWS_RDS")
+        port_aws_rds = os.environ.get("PORT_AWS_RDS")
+        database_aws_rds = os.environ.get("DATABASE_AWS_RDS")
+        
+
+        return login_api, senha_api, login_aws_s3, senha_aws_s3, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds
 
             
     except:
@@ -129,6 +125,7 @@ def transformacao_dados(df):
     
     df = df[['CIDADE', 'DATA', 'TEMPERATURA_CELSIUS', 'PRECIP_MM', 'VELOCIDADE_VENTO_MS']]
 
+    df['DATA'] = df['DATA'].str.replace('T', ' ')
     df['DATA'] = pd.to_datetime(df['DATA'], format = '%Y-%m-%d %H:%M')
     df['TEMPERATURA_CELSIUS'] = df['TEMPERATURA_CELSIUS'].astype('float')
     df['PRECIP_MM'] = df['PRECIP_MM'].astype('float')
@@ -216,7 +213,7 @@ if __name__ == "__main__":
     # +---+---+---+---+---+---+---+
     
     
-    login_api, senha_api, login_aws, senha_aws, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds  = atribuindo_acessos()
+    login_api, senha_api, login_aws_s3, senha_aws_s3, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds  = atribuindo_acessos()
         
     query_api = criando_query_para_requisicao()
     
@@ -240,7 +237,7 @@ if __name__ == "__main__":
             # | L | o | a | d |  
             # +---+---+---+---+       
             
-            aws_s3(login_aws, senha_aws, df)
+            aws_s3(login_aws_s3, senha_aws_s3, df)
         
             aws_rds_mysql_insert(login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds, df)
         

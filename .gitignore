@@ -2,3 +2,9 @@
 /jupyter_notebook_testes
 /env
 /airflow
+airflow.cfg
+airflow.db
+airflow-webserver.pid
+webserver_config.py
+/logs
+/env_2

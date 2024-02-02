@@ -8,6 +8,12 @@ import mysql.connector
 import os
 
 
+from airflow.models import DAG
+from airflow.utils.dates import days_ago
+from airflow.operators.empty import EmptyOperator
+from airflow.operators.python import PythonOperator
+import pendulum
+
 
     # +---+---+---+---+---+---+---+---+---+   
     # | F | u | n | c | t | i | o | n | s |
@@ -21,20 +27,28 @@ def atribuindo_acessos():
     
         
     try:
+             
         
-        login_api = os.environ.get("LOGIN_API_WEATHER")
-        senha_api = os.environ.get("SENHA_API_WEATHER")
+        with open('/home/rafaelfabrichimidt/Documentos/Projetos/Python/codigos/pipeline_api_weather/senhas/senhas.csv', 'r') as f:
+
+            df = pd.read_csv(f)
+            
+            
+            login_api = df.loc[0, 'login']
+            senha_api = df.loc[0, 'senha']
         
-        login_aws_s3 = os.environ.get("LOGIN_AWS_S3")
-        senha_aws_s3 = os.environ.get("SENHA_AWS_S3")
+            login_aws_s3 = df.loc[1, 'login']
+            senha_aws_s3 = df.loc[1, 'senha']
         
-        login_aws_rds = os.environ.get("LOGIN_AWS_RDS")
-        senha_aws_rds = os.environ.get("SENHA_AWS_RDS")
-        host_aws_rds = os.environ.get("HOST_AWS_RDS")
-        port_aws_rds = os.environ.get("PORT_AWS_RDS")
-        database_aws_rds = os.environ.get("DATABASE_AWS_RDS")
-        print(senha_api)
-        return login_api, senha_api, login_aws_s3, senha_aws_s3, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds
+            login_aws_rds = df.loc[2, 'login']
+            senha_aws_rds = df.loc[2, 'senha']
+            host_aws_rds  = df.loc[2, 'hostname']
+            port_aws_rds  = df.loc[2, 'port']
+            database_aws_rds = df.loc[2, 'database']
+            
+            
+            
+            return login_api, senha_api, login_aws_s3, senha_aws_s3, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds
 
             
     except:
@@ -204,21 +218,8 @@ def aws_rds_mysql_insert(USER, PASSWORD, HOSTNAME, PORT, DATABASE, df):
 
 
 
-
-
-    # +---+---+---+---+ 
-    # | M | a | i | n |
-    # +---+---+---+---+
-
-#if __name__ == "__main__":   
+def extrai_dados():
     
-    # +---+---+---+---+---+---+---+ 
-    # | E | x | t | r | a | c | t |
-    # +---+---+---+---+---+---+---+
-
-if __name__ == "__main__":   
-    
-                           
     login_api, senha_api, login_aws_s3, senha_aws_s3, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds  = atribuindo_acessos()
         
     query_api = criando_query_para_requisicao()
@@ -253,5 +254,50 @@ if __name__ == "__main__":
         
         print('sem login ou senha')
 
+
+
+with DAG(
+        'pipeline_weather_data',
+         start_date = pendulum.datetime(2023, 2, 28, tz='UTC'),
+         schedule_interval = '0 1 * * *', # every day 1:00 AM
+         catchup=False
+) as dag:
+    
+
+    tarefa_2 = PythonOperator(python_callable = extrai_dados,
+                              task_id='tarefa_2')
+
+    
+    tarefa_2 
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # +---+---+---+---+ 
+    # | M | a | i | n |
+    # +---+---+---+---+
+
+#if __name__ == "__main__":   
+    
+    # +---+---+---+---+---+---+---+ 
+    # | E | x | t | r | a | c | t |
+    # +---+---+---+---+---+---+---+
+
+#if __name__ == "__main__":   
+    
+    
+    
+   
 
     

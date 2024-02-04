@@ -6,12 +6,14 @@ import datetime
 import boto3
 import mysql.connector
 import os
+import csv
 
 
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
 import pendulum
 
 
@@ -21,11 +23,16 @@ import pendulum
 
 
 
+    
+    
+
 
 #1 - FUNCTION
-def atribuindo_acessos():
+def atribuindo_acessos(**context):
+
+    dict_acessos = {}
     
-        
+    
     try:
              
         
@@ -34,33 +41,35 @@ def atribuindo_acessos():
             df = pd.read_csv(f)
             
             
-            login_api = df.loc[0, 'login']
-            senha_api = df.loc[0, 'senha']
+            dict_acessos['login_api'] = df.loc[0, 'login']
+            dict_acessos['senha_api'] = df.loc[0, 'senha']
         
-            login_aws_s3 = df.loc[1, 'login']
-            senha_aws_s3 = df.loc[1, 'senha']
+            dict_acessos['login_aws_s3'] = df.loc[1, 'login']
+            dict_acessos['senha_aws_s3'] = df.loc[1, 'senha']
         
-            login_aws_rds = df.loc[2, 'login']
-            senha_aws_rds = df.loc[2, 'senha']
-            host_aws_rds  = df.loc[2, 'hostname']
-            port_aws_rds  = df.loc[2, 'port']
-            database_aws_rds = df.loc[2, 'database']
+            dict_acessos['login_aws_rds'] = df.loc[2, 'login']
+            dict_acessos['senha_aws_rds'] = df.loc[2, 'senha']
+            dict_acessos['host_aws_rds']  = df.loc[2, 'hostname']
+            dict_acessos['port_aws_rds']  = int(df.loc[2, 'port'])
+            dict_acessos['database_aws_rds'] = df.loc[2, 'database']
+            
+            context['task_instance'].xcom_push(key = 'dict_acessos', value = dict_acessos)
+            
+            #return dict_acessos
             
             
             
-            return login_api, senha_api, login_aws_s3, senha_aws_s3, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds
-
             
     except:
         problema = 'Nao encontrado diretorio senhas ou arquivo senha ou arquivo com formato errado'
         print(problema)
         print('exemplo de arquivo esta no arquivo exemplo_senha.csv')
         
-        return ' ', ' '
+        #return ' ', ' '
 
 
 #2 - FUNCTION
-def criando_query_para_requisicao():
+def criando_query_para_requisicao(**context):
     
     link_site = 'https://api.meteomatics.com'
     
@@ -81,21 +90,34 @@ def criando_query_para_requisicao():
     
     query = '{}/{}/{}/{}/{}'.format(link_site, data_e_intervalo_de_dados, variaveis, lat_long, arquivo)
     
-    return query
+    context['task_instance'].xcom_push(key = 'query', value = query)
+    
+    #return query
     
 
 #3 - FUNCTION
-def requisicao_dados(login, senha, query):
+def requisicao_dados(**context):
     
+    dict_acessos = context['task_instance'].xcom_pull(key = 'dict_acessos', task_ids = 'tarefa_1')
+
+    query = context['task_instance'].xcom_pull(key = 'query',  task_ids = 'tarefa_2')
+    
+    
+    dic = {'0':query}
+    
+    b = pd.DataFrame.from_dict(dic, orient = 'index')
+    b.to_csv('/home/rafaelfabrichimidt/Documentos/Projetos/Python/codigos/pipeline_api_weather/dags/b.csv')
     
     try:
         
-        r = requests.get(query, auth = HTTPBasicAuth(login, senha))
+        r = requests.get(query, auth = HTTPBasicAuth(dict_acessos['login_api'], dict_acessos['senha_api']))
+        
         print(query)
         print(r.status_code)
+        
         if r.status_code == 200:
             
-            print('Requisicao feita com Sucesso!')
+            #print('Requisicao feita com Sucesso!')
             
             dados_csv = r.content.decode('utf-8')
             
@@ -108,31 +130,43 @@ def requisicao_dados(login, senha, query):
                 lista.append(row)
                         
             df = pd.DataFrame(lista)
-                        
-            return df
+
+            df = transformacao_dados(df.copy())
+            
+            aws_s3(df, dict_acessos)
+            
+            aws_rds_mysql_insert(df, dict_acessos)
+            
+            
+            
+            
             
         
         else:
             
             print('Resquisicao Negada')
             
-            df = pd.DataFrame()
+            #df = pd.DataFrame()
             
-            return df
+            #return df
 
-            
+        
+        #df.to_csv('/home/rafaelfabrichimidt/Documentos/Projetos/Python/codigos/pipeline_api_weather/b.csv')
+    
+        #return df   
+   
     except:
         
         print('link com erro')
         
         df = pd.DataFrame()
             
-        return df
+        #return df
 
 
 #4 - FUNCTION
 def transformacao_dados(df):
-    
+        
     df.columns = ['DATA', 'TEMPERATURA_CELSIUS', 'PRECIP_MM', 'VELOCIDADE_VENTO_MS']
             
     df.drop(labels = [0], axis = 0, inplace = True)
@@ -149,10 +183,14 @@ def transformacao_dados(df):
     df['PRECIP_MM'] = df['PRECIP_MM'].astype('float')
     df['VELOCIDADE_VENTO_MS'] = df['VELOCIDADE_VENTO_MS'].astype('float')
 
+    
+
+    
     return df
 
 #5 - FUNCTION
-def aws_s3(LOGIN, SENHA, df):
+def aws_s3(df, dict_acessos):
+    
     
     data = (datetime.datetime.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d')
             
@@ -165,8 +203,8 @@ def aws_s3(LOGIN, SENHA, df):
     df.to_csv(NOME_DO_ARQUIVO_LOCAL, index = False)
     
     
-    AWS_ACCESS_KEY = LOGIN
-    AWS_SECRET_KEY = SENHA
+    AWS_ACCESS_KEY = dict_acessos['login_aws_s3']
+    AWS_SECRET_KEY = dict_acessos['senha_aws_s3']
     AWS_S3_BUCKET_NAME = 'pipeline-weather-data'
     AWS_REGION = 'sa-east-1'
     
@@ -190,17 +228,16 @@ def aws_s3(LOGIN, SENHA, df):
     
 
 #6 - FUNCTION
-def aws_rds_mysql_insert(USER, PASSWORD, HOSTNAME, PORT, DATABASE, df):
+def aws_rds_mysql_insert(df, dict_acessos):
        
     
     df_lista = df.values.tolist()
     
-    
-    conn = mysql.connector.connect(host = HOSTNAME,
-                                   user = USER,
-                                   password = PASSWORD,
-                                   database = DATABASE,
-                                   port = PORT)
+    conn = mysql.connector.connect(host = dict_acessos['host_aws_rds'],
+                                   user = dict_acessos['login_aws_rds'],
+                                   password = dict_acessos['senha_aws_rds'],
+                                   database = dict_acessos['database_aws_rds'],
+                                   port = dict_acessos['port_aws_rds'])
 
     cursor = conn.cursor()
     
@@ -218,57 +255,29 @@ def aws_rds_mysql_insert(USER, PASSWORD, HOSTNAME, PORT, DATABASE, df):
 
 
 
-def extrai_dados():
-    
-    login_api, senha_api, login_aws_s3, senha_aws_s3, login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds  = atribuindo_acessos()
-        
-    query_api = criando_query_para_requisicao()
-    
-
-    if login_api != ' ':
-    
-        df = requisicao_dados(login_api, senha_api, query_api)
-        
-        
-        if df.shape[0] > 0:
-            
-            
-            # +---+---+---+---+---+---+---+---+---+  
-            # | T | r | a | n | s | f | o | r | m |   
-            # +---+---+---+---+---+---+---+---+---+         
-    
-            df = transformacao_dados(df)
-                    
-            
-            # +---+---+---+---+
-            # | L | o | a | d |  
-            # +---+---+---+---+       
-            
-            aws_s3(login_aws_s3, senha_aws_s3, df)
-        
-            aws_rds_mysql_insert(login_aws_rds, senha_aws_rds, host_aws_rds, port_aws_rds, database_aws_rds, df)
-        
-
-            
-    else:
-        
-        print('sem login ou senha')
-
 
 
 with DAG(
         'pipeline_weather_data',
          start_date = pendulum.datetime(2023, 2, 28, tz='UTC'),
          schedule_interval = '0 1 * * *', # every day 1:00 AM
-         catchup=False
+         #catchup=False
 ) as dag:
-    
+        
+    tarefa_1 = PythonOperator(python_callable = atribuindo_acessos,
+                              task_id = 'tarefa_1',
+                              dag = dag)
 
-    tarefa_2 = PythonOperator(python_callable = extrai_dados,
-                              task_id='tarefa_2')
+    tarefa_2 = PythonOperator(python_callable = criando_query_para_requisicao,
+                              task_id = 'tarefa_2',
+                              dag = dag)
 
+    tarefa_3 = PythonOperator(python_callable = requisicao_dados, 
+                              task_id = 'tarefa_3',
+                              dag = dag)
     
-    tarefa_2 
+    
+    tarefa_1 >> tarefa_2 >> tarefa_3
     
 
 

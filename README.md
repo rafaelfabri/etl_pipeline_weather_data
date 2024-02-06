@@ -1,12 +1,14 @@
 # Pipeline Extract Weather Data
 
-![PIPELINE](https://github.com/rafaelfabri/pipeline_api_weather/blob/main/dags/fluxo.png)
+![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/dags/fluxo.png)
+
+![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/dags/fluxo.png)
 
 Esse projeto tem como objetivo extrair dados, todos os dias, de previsão meteorológicas do próximo dia  referente a cidade de São Paulo.
 
-A ideia é utilizar Linguagem de Programação Python para extrair esses dados via Request da API https://www.meteomatics.com/ e inseri-los em banco de dados Amazon Relational Database Service (Amazon RDS) e também salvar os arquivos .csv em um bucket no Amazon Simple Storage Service (Amazon S3).
+O objetivo foi utilizar Linguagem de Programação Python para extrair esses dados via Request da API https://www.meteomatics.com/ e inseri-los em banco de dados Amazon Relational Database Service (Amazon RDS) e também salvar os arquivos .parquet em um bucket no Amazon Simple Storage Service (Amazon S3).
 
-No final o data pipeline será hospedado na Amazon Elastic Compute Cloud (Amazon EC2) e orquestrado em Apache Airflow.
+No final o data pipeline será hospedado na Amazon Elastic Compute Cloud (Amazon EC2) e orquestrado e monitorado em Apache Airflow.
 
 
 

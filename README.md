@@ -2,7 +2,6 @@
 
 ![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/dags/fluxo.png)
 
-![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/dags/fluxo.png)
 
 Esse projeto tem como objetivo extrair dados, todos os dias, de previsão meteorológicas do próximo dia  referente a cidade de São Paulo.
 
@@ -10,7 +9,7 @@ O objetivo foi utilizar Linguagem de Programação Python para extrair esses dad
 
 No final o data pipeline será hospedado na Amazon Elastic Compute Cloud (Amazon EC2) e orquestrado e monitorado em Apache Airflow.
 
-
+![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/dags/pipeline.png)
 
 
 ## Passo a Passo para utilizar Airflow  

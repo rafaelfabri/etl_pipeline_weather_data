@@ -16,7 +16,9 @@ O pipeline completo encontra-se na imagem abaixo:
 
 ![PIPELINE_COMPLETO](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/pipeline_completo.png)
 
-O objetivo é deixar esse pipeline rodando todos os dias e para isso será hospedado em uma Instância EC2, poderia ser utilizada uma outra ferramente da AWS como o lambda, mas como o objetivo era praticar um pouco de Airflow escolhi armazenar em uma máquina virtual. O script em Python executará diariamente atravez de uma ativação pelo Airflow e executar um ETL para poder armazena-los em banco de dados como Amazon Relational Database Service (Amazon RDS) e também salvar os arquivos .parquet em um bucket no Amazon Simple Storage Service (Amazon S3).
+O objetivo é deixar esse pipeline rodando todos os dias e para isso será hospedado em uma Instância EC2, poderia ser utilizada uma outra ferramente da AWS como o lambda, mas como o objetivo era praticar um pouco de Airflow escolhi armazenar em uma máquina virtual.
+
+O script em Python executará diariamente atravez de uma ativação pelo Airflow e executar um ETL para poder armazena-los em banco de dados como Amazon Relational Database Service (Amazon RDS) e também salvar os arquivos .parquet em um bucket no Amazon Simple Storage Service (Amazon S3).
 
 
 obs - no codigo deixei a parte com insert na Amazon RDS, porém como é mais caro manter um banco de dados relacional na AWS eu resolvi desliga-lo e deixar o codigo la como exemplo. 
@@ -63,7 +65,7 @@ source env/bin/activate
 #instalar biblotecas necessarias
 pip install -r requirements.txt
 
-```bash
+```
 
 ## Passo a Passo para utilizar Airflow  
 
@@ -98,4 +100,6 @@ airflow webserver -p 8080
 
 #levantar schedule (em outro terminal)
 airflow scheduler
-```bash
+```
+
+

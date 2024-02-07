@@ -22,19 +22,55 @@ O objetivo é deixar esse pipeline rodando todos os dias e para isso será hospe
 obs - no codigo deixei a parte com insert na Amazon RDS, porém como é mais caro manter um banco de dados relacional na AWS eu resolvi desliga-lo e deixar o codigo la como exemplo. 
 
 
+## Criando Instância EC2
+
+No artigo abaixo mostro como criar uma instância EC2
+
+[AWS: Hospendando um Streamlit na Amazon EC2](https://medium.com/@rafael-fabri-chimidt/aws-hospendando-um-streamlit-450afc46874e)
+
+
 ## Configurações Python 
 
+A forma que vou mostrar para configurar o python é da mesma forma localmente em linux ou na instância EC2 de uma AMI Ubuntu
+
 ```
-#criar o ambiente
+
+
+#instalar python3
+sudo apt install python3
+
+#configurar python de diversar versoes
+sudo add-apt-repository ppa:deadsnakes/ppa
+
+#instalar python3-venv para criarmos um ambiente python3
+sudo apt install python3-venv
+
+#instalar python3-pip para conseguirmos usar o pip
+sudo apt install python3-pip
+
+#criar uma pasta para o projeto 
+mkdir projeto
+
+#acessar pasta
+cd projeto
+
+#criar ambiente
 python3.9 -m venv env
+
+#ativar ambiente
+source env/bin/activate
+
+#instalar biblotecas necessarias
+pip install -r requirements.txt
 
 ```bash
 
 ## Passo a Passo para utilizar Airflow  
 
+Depois do ambiente python pronto pode-se isntalar o Airflow 
+
+
 ```
-#criar o ambiente
-python3.9 -m venv env
 
 #ativar o ambiente 
 source env/bin/activate

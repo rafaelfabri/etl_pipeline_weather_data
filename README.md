@@ -35,8 +35,7 @@ No artigo abaixo mostro como criar uma instância EC2
 
 A forma que vou mostrar para configurar o python é da mesma forma localmente em linux ou na instância EC2 de uma AMI Ubuntu
 
-```
-
+```bash
 
 #instalar python3
 sudo apt install python3
@@ -65,14 +64,14 @@ source env/bin/activate
 #instalar biblotecas necessarias
 pip install -r requirements.txt
 
-```
+```bash
 
 ## Passo a Passo para utilizar Airflow  
 
 Depois do ambiente python pronto pode-se isntalar o Airflow 
 
 
-```
+```bash
 
 #ativar o ambiente 
 source env/bin/activate
@@ -100,6 +99,7 @@ airflow webserver -p 8080
 
 #levantar schedule (em outro terminal)
 airflow scheduler
-```
+
+```bash
 
 

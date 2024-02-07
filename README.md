@@ -2,6 +2,8 @@
 
 ![hospedagem_cloud](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/hospedagem_cloud.png)
 
+* Projeto em desenvolvimento
+
 Esse projeto tem como objetivo a construção de um pipeline de dados para todos os dias extrair dados da previsão meteorológicas do próximo dia referente a cidade de São Paulo.
 
 O objetivo foi utilizar Linguagem de Programação Python para extrair esses dados via Request da API https://www.meteomatics.com/, realizar uma básica transformação de dados e armazena-los. 
@@ -24,12 +26,19 @@ O script em Python executará diariamente atravez de uma ativação pelo Airflow
 obs - no codigo deixei a parte com insert na Amazon RDS, porém como é mais caro manter um banco de dados relacional na AWS eu resolvi desliga-lo e deixar o codigo la como exemplo. 
 
 
-## Criando Instância EC2
+## Como criar Instância EC2
 
 No artigo abaixo mostro como criar uma instância EC2
 
 [AWS: Hospendando um Streamlit na Amazon EC2](https://medium.com/@rafael-fabri-chimidt/aws-hospendando-um-streamlit-450afc46874e)
 
+## Como criar um bucket no Amazon S3
+
+Escrever...
+
+## Como criar um banco de dados no Amazon RDS
+
+Escrever...
 
 ## Configurações Python 
 
@@ -101,5 +110,9 @@ airflow webserver -p 8080
 airflow scheduler
 
 ```
+
+## como acessar o airflow e monitorar a execução 
+
+escrever...
 
 

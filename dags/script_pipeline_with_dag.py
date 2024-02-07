@@ -146,14 +146,7 @@ def requisicao_dados(**context):
             
             print('Resquisicao Negada')
             
-            #df = pd.DataFrame()
-            
-            #return df
 
-        
-        #df.to_csv('/home/rafaelfabrichimidt/Documentos/Projetos/Python/codigos/pipeline_api_weather/b.csv')
-    
-        #return df   
    
     except:
         
@@ -161,7 +154,7 @@ def requisicao_dados(**context):
         
         df = pd.DataFrame()
             
-        #return df
+
 
 
 #4 - FUNCTION
@@ -282,30 +275,6 @@ with DAG(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-    # +---+---+---+---+ 
-    # | M | a | i | n |
-    # +---+---+---+---+
-
-#if __name__ == "__main__":   
-    
-    # +---+---+---+---+---+---+---+ 
-    # | E | x | t | r | a | c | t |
-    # +---+---+---+---+---+---+---+
-
-#if __name__ == "__main__":   
-    
-    
     
    
 

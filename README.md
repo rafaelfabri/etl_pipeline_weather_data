@@ -64,7 +64,7 @@ source env/bin/activate
 #instalar biblotecas necessarias
 pip install -r requirements.txt
 
-```bash
+```
 
 ## Passo a Passo para utilizar Airflow  
 
@@ -100,6 +100,6 @@ airflow webserver -p 8080
 #levantar schedule (em outro terminal)
 airflow scheduler
 
-```bash
+```
 
 

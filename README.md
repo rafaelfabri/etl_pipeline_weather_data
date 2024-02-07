@@ -1,8 +1,11 @@
 # Pipeline Extract Weather Data
 
+* Projeto em desenvolvimento
+* Script python sem Airflow main/script_pipeline.py
+* Script python com Airflow main/dags/script_pipeline.py
+
 ![hospedagem_cloud](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/hospedagem_cloud.png)
 
-* Projeto em desenvolvimento
 
 Esse projeto tem como objetivo a construção de um pipeline de dados para todos os dias extrair dados da previsão meteorológicas do próximo dia referente a cidade de São Paulo.
 

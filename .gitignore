@@ -9,3 +9,4 @@ webserver_config.py
 /logs
 /env_2
 airflow.db-journal
+dags/__pycache__

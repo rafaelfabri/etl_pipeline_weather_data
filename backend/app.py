@@ -3,67 +3,54 @@ from requests.auth import HTTPBasicAuth
 import pandas as pd
 import sys
 import datetime
-sys.path.append('/home/rafaelfabrichimidt/Documentos/Projetos/Python/codigos/pipeline_api_weather')
+sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data')
 from backend.modulos.api import APICollector
 from backend.contrato.schema import ContratoSchema
+
+
+
+def senhasAPI():
+    
+    senhas = pd.read_csv('/home/rafaelfabrichimidt/Documentos/projetos/artigos/senhas/pipeline_api_weather/senhas.csv')
+    
+    credenciais_api = {'login': senhas[senhas['dispositivo'] == 'api_weather']['login'].values[0],
+                       'senha': senhas[senhas['dispositivo'] == 'api_weather']['senha'].values[0]}
+    
+    return credenciais_api
 
 
 def main():
     
     schema = ContratoSchema
-    print(schema)
-        
-    api_login, api_senha = senhas()
-
-    main_link, comeca, termina, intervalo, variaveis, lat_long, file = variavies_extracao()
-
-
-    instance_api = APICollector(schema)
+            
     
-    query = instance_api.create_query(main_link = main_link, 
-                                      data_inicial = comeca,
-                                      data_final = termina,
-                                      intervalo = intervalo,
-                                      variaveis = variaveis ,
-                                      lat_long = lat_long,
-                                      file = file)    
-
-    print(query)
-    
-    df = instance_api.Start(query = query,
-                            login = api_login,
-                            senha = api_senha)
-  
-    print(df)
+    credenciais_api = senhasAPI()
 
 
-def variavies_extracao():
+    #instanciando API
+    instance_api = APICollector(credenciais_api)    
     
-    main_link = 'https://api.meteomatics.com'
     
-    #periodo de requisicao - sempre referente a amanha
+    #datas de intervalo de extracao
     comeca = (datetime.datetime.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d') + 'T00:00:00Z'
     termina = (datetime.datetime.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d') + 'T23:00:00Z'
+    
+    
+    #criando query para extracao
+    query = instance_api.createQuery( main_link    = 'https://api.meteomatics.com', 
+                                      data_inicial = comeca,
+                                      data_final   = termina,
+                                      intervalo    = 'PT1H',
+                                      variaveis    = 't_2m:C,precip_1h:mm,wind_speed_10m:ms' ,
+                                      lat_long     = '-23.7245,-46.6775',
+                                      file         = 'csv')    
+    
+    
 
-    intervalo = 'PT1H'
-        
-    #variaveis de entracao
-    variaveis = 't_2m:C,precip_1h:mm,wind_speed_10m:ms'
+    df = instance_api.startETL(query)
+  
     
-    #lat_e_long SAO PAULO
-    lat_long = '-23.7245,-46.6775'
-    file = 'csv'
-    
-    
-    return main_link, comeca, termina, intervalo, variaveis, lat_long, file
-    
-
-def senhas():
-    senhas = pd.read_csv('/home/rafaelfabrichimidt/Documentos/Projetos/Python/senhas/pipeline_api_weather/senhas.csv')
-    api_login = senhas[senhas['dispositivo'] == 'api_weather']['login'].values[0]
-    api_senha = senhas[senhas['dispositivo'] == 'api_weather']['senha'].values[0]
-    
-    return api_login, api_senha
+    print(df)
 
 
 

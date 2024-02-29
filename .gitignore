@@ -10,3 +10,4 @@ webserver_config.py
 /env_2
 airflow.db-journal
 dags/__pycache__
+/envs

@@ -16,4 +16,5 @@ dags/__pycache__
 /airflow/airflow.db-journal
 /airflow/webserver_config.py
 /airflow/airflow-webserver.pid
+/backend/.env
 

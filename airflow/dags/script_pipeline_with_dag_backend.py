@@ -21,15 +21,19 @@ with DAG('pipeline_weather_call_backend',
                                        task_id = 'definindo_credenciais',
                                        dag = dag)
     
+    criando_info_para_request = PythonOperator(python_callable = callAPI().infoDataToRequest,
+                                               task_id = 'info_request',
+                                               dag = dag)
+    
     instanciando_api = PythonOperator(python_callable = callAPI().callInstanceAPI,
                                       task_id = 'instanciando_APICollector',
                                       dag = dag)
 
-    comecando_etl = PythonOperator(python_callable = callAPI().callStartETL,
-                                   task_id = 'executando_ETL',
-                                   dag = dag)
+    #comecando_etl = PythonOperator(python_callable = callAPI().callStartETL,
+    #                               task_id = 'executando_ETL',
+    #                               dag = dag)
     
     end_code = EmptyOperator(task_id = 'Encerrando_Codigo')
     
-    start_code >> atribuicao_senhas >> instanciando_api >> comecando_etl >> end_code
+    start_code >> atribuicao_senhas >> criando_info_para_request >> instanciando_api >> end_code
     

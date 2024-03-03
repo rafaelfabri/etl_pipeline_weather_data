@@ -12,12 +12,9 @@ from backend.contrato.schema import ContratoSchema
 
 
 
+
+
 def senhas():
-    
-    #senhas = pd.read_csv('/home/rafaelfabrichimidt/Documentos/projetos/artigos/senhas/pipeline_api_weather/senhas.csv')
-    
-    #credenciais_api = {'login': senhas[senhas['dispositivo'] == 'api_weather']['login'].values[0],
-    #                   'senha': senhas[senhas['dispositivo'] == 'api_weather']['senha'].values[0]}
     
     credenciais_api = {'login': os.environ.get('LOGIN_API_WEATHER'),
                        'senha': os.environ.get('SENHA_API_WEATHER')}

@@ -18,21 +18,16 @@ class APICollector():
             
         Faca a instancia da APICollector em uma variavel e passe essas tres informacoes
 
-            
-            * credenciais_api: dicionario com 
-                {'login': 'SPIDERMAN', 'senha': 'SPIDERMAN'}
-            
-            * credenciais_aws:  dicionario com  
-                {'aws_access_key_id': 'aws_access_key_id', 'aws_secret_access_key': 'aws_secret_access_key'}
-            
-            * info_to_request: dicionario com informacoes para criar o link para requisicao de dados 
-                {'main_link' : 'https://api.meteomatics.com',
-                 'intervalo' : 'PT1H',
-                 'variaveis' : 't_2m:C,precip_1h:mm,wind_speed_10m:ms',
-                 'lat_long'  : '-23.7245,-46.6775',
-                 'file'      : 'csv'
-            
-       
+        APICollector(credenciais_api: dict | credenciais_aws: dict  | info_to_request: dict)
+                     
+        {'login': 'login', 'senha': 'senha'}
+        {'aws_access_key_id': 'aws_access_key_id', 'aws_secret_access_key': 'aws_secret_access_key'}
+        {'main_link' : 'https://api.meteomatics.com',
+         'intervalo' : 'PT1H',
+         'variaveis' : 't_2m:C,precip_1h:mm,wind_speed_10m:ms',
+         'lat_long'  : '-23.7245,-46.6775',
+         'file'      : 'csv'}
+        
        """
     
     def __init__(self, credenciais_api, credenciais_aws, info_to_request):
@@ -196,6 +191,5 @@ class APICollector():
     def verificacao_contrato():
         
         
-        self._schema
-    
+        return None    
     

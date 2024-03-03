@@ -1,7 +1,6 @@
 /senhas
 /jupyter_notebook_testes
 /env
-/airflow
 airflow.cfg
 airflow.db
 airflow-webserver.pid
@@ -11,3 +10,10 @@ webserver_config.py
 airflow.db-journal
 dags/__pycache__
 /envs
+/airflow/airflow.cfg
+/airflow/logs
+/airflow/airflow.db
+/airflow/airflow.db-journal
+/airflow/webserver_config.py
+/airflow/airflow-webserver.pid
+

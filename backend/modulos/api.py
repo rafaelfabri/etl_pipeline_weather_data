@@ -2,6 +2,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 import pandas as pd
 import csv
+import datetime
 import boto3
 
 
@@ -9,41 +10,86 @@ import boto3
 
 class APICollector():
     
-    def __init__(self, credenciais_api):
+    """Coletor de dados API Methoroligcs
+       
+        A classe APICollector tem como objetivo a extracao de dados, transformacao e carregamento de dados
+       
+        APICollector possui 3 argumentos obrigatorios: credenciais_api, credenciais_aws, info_to_request
+            
+        Faca a instancia da APICollector em uma variavel e passe essas tres informacoes
+
+            
+            * credenciais_api: dicionario com 
+                {'login': 'SPIDERMAN', 'senha': 'SPIDERMAN'}
+            
+            * credenciais_aws:  dicionario com  
+                {'aws_access_key_id': 'aws_access_key_id', 'aws_secret_access_key': 'aws_secret_access_key'}
+            
+            * info_to_request: dicionario com informacoes para criar o link para requisicao de dados 
+                {'main_link' : 'https://api.meteomatics.com',
+                 'intervalo' : 'PT1H',
+                 'variaveis' : 't_2m:C,precip_1h:mm,wind_speed_10m:ms',
+                 'lat_long'  : '-23.7245,-46.6775',
+                 'file'      : 'csv'
+            
+       
+       """
+    
+    def __init__(self, credenciais_api, credenciais_aws, info_to_request):
+        
         self._credenciais_api = credenciais_api
-        self._schema = None
-        self._credenciais_aws = None
+        self._credenciais_aws = credenciais_aws        
+        self.query_request = self.createQuery(info_to_request)
         
         
         
-    def createQuery(self, main_link, data_inicial, data_final, intervalo, variaveis, lat_long, file):
+        
+    def createQuery(self, info_to_request):
         
         """Metodo utilizado para definir a query/link de requesicao dos dados"""
         
         
-        data_e_intervalo_de_dados = '{}--{}:{}'.format(data_inicial, data_final , intervalo)
+        data_e_intervalo_de_dados = '{}--{}:{}'.format(self.extractDate()['start'], 
+                                                       self.extractDate()['end'], 
+                                                       info_to_request['intervalo'])
             
-        query = '{}/{}/{}/{}/{}'.format(main_link, data_e_intervalo_de_dados, variaveis, lat_long, file)
+        query = '{}/{}/{}/{}/{}'.format(info_to_request['main_link'],
+                                        data_e_intervalo_de_dados, 
+                                        info_to_request['variaveis'], 
+                                        info_to_request['lat_long'], 
+                                        info_to_request['file'])
         
         print(query)
         
         return query
         
     
-    def startETL(self, query):
+    def extractDate(self):
+        
+        start = (datetime.datetime.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d') + 'T00:00:00Z'
+        end = (datetime.datetime.today() + datetime.timedelta(days = 1)).strftime('%Y-%m-%d') + 'T23:00:00Z'
+        
+        return {'start' : start, 'end' : end}
+    
+    
+    
+    
+    def startETL(self):
         
         """startETL é um método que realiza a extração, transformação e carregamento dos dados meteorológicos vindo da API \n
            para isso o startETL utiliza de 4 metodos: 
-               requestData
                
-               transformCsvToDataframe
-               
-               transformDataframe
-               
+            requestData
+            
+            transformCsvToDataframe
+            
+            transformDataframe
+            
+            loadBucketS3
                
                """
         
-        response = self.requestData(query)
+        response = self.requestData(self.query_request)
         
         if response is not None:
         
@@ -53,16 +99,13 @@ class APICollector():
             
             self.loadBucketS3(df)
             
-            
-            return df
-        
-            
-        
-        
+            print('startETL executado com sucesso')
         
         else:
             
-            return None
+            print('response vazio')
+    
+    
     
     def requestData(self, query):
         
@@ -83,6 +126,8 @@ class APICollector():
             print('query errada')
             return None
         
+    
+    
     
     def transformCsvToDataframe(self, response):
         
@@ -125,18 +170,19 @@ class APICollector():
         return df
     
     
+    
     def loadBucketS3(self, df):
-        
-        senhas = pd.read_csv('/home/rafaelfabrichimidt/Documentos/projetos/artigos/senhas/pipeline_api_weather/senhas.csv')
-        
-        NOME_ARQUIVO = 'A.parquet'
+                
+        NOME_ARQUIVO = 'SAO PAULO-WEATHER-{}-{}.parquet'.format(self.extractDate()['start'],
+                                                                self.extractDate()['end'])
         
         df.to_parquet(NOME_ARQUIVO)
         
-        AWS_ACCESS_KEY = senhas[senhas['dispositivo'] == 'awsS3']['login'].values[0]
-        AWS_SECRET_KEY = senhas[senhas['dispositivo'] == 'awsS3']['senha'].values[0]
+        AWS_ACCESS_KEY = self._credenciais_aws['aws_access_key_id']
+        AWS_SECRET_KEY = self._credenciais_aws['aws_secret_access_key']
         AWS_S3_BUCKET_NAME = 'weather-data-storage'
         AWS_REGION = 'us-east-1'
+        
         
         s3_client = boto3.client(service_name = 's3',
                                  region_name = AWS_REGION,

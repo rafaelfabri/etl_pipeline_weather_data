@@ -6,16 +6,12 @@
 
 ![hospedagem_cloud](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/hospedagem_cloud.png)
 
-
+aaaaaa
 Esse projeto tem como objetivo a construção de um pipeline de dados para todos os dias extrair dados da previsão meteorológicas do próximo dia referente a cidade de São Paulo.
 
 O objetivo foi utilizar Linguagem de Programação Python para extrair esses dados via Request da API https://www.meteomatics.com/, realizar uma básica transformação de dados e armazena-los. 
 
 A ideia é utilizar a metodologia ETL para a realização deste projeto. Primeiramente, estou construindo localmente e ao final será hospedado na Amazon Elastic Compute Cloud (Amazon EC2), orquestrado e monitorado em Apache Airflow. Foi um grande desafio estar aprendendo como trabalhar com Airflow e os servicos Cloud da Amazon.
-
-Na imagem abaixo está a forma macro das etapas que serão executadas em Python com a extração da fonte de dados, uma básica transformação de dados e por fim o carregamento deste dados.
-
-![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/pipeline.png)
 
 O pipeline completo encontra-se na imagem abaixo:
 
@@ -25,8 +21,12 @@ O objetivo é deixar esse pipeline rodando todos os dias e para isso será hospe
 
 O script em Python executará diariamente atravez de uma ativação pelo Airflow e executar um ETL para poder armazena-los em banco de dados como Amazon Relational Database Service (Amazon RDS) e também salvar os arquivos .parquet em um bucket no Amazon Simple Storage Service (Amazon S3).
 
-
 obs - no codigo deixei a parte com insert na Amazon RDS, porém como é mais caro manter um banco de dados relacional na AWS eu resolvi desliga-lo e deixar o codigo la como exemplo. 
+
+
+Na imagem abaixo está a forma macro das etapas que serão executadas em Python foi construído um arquivo DAG.py que encontra-se apenas com a criação da DAG, definição das tasks, esse script importa uma classe no backend chamada callAPICollector() que encontra-se no script app_airflow.py, este por fim chama a última classe que realiza todo ETL.
+
+![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/pipeline.png)
 
 
 ## Como criar Instância EC2
@@ -37,7 +37,24 @@ No artigo abaixo mostro como criar uma instância EC2
 
 ## Como criar um bucket no Amazon S3
 
-Escrever...
+A Amazon S3 é um serviço de storage da AWS que foi criada para armazenar arquivos utilizando conceito de armazenamento de objetos. Esse tipo de armazenamento é ótimo para armazenar arquivos que não precisam ser atualizados periódicamente. Para armazenar dentro do Amazon S3 é necessário criar os passos a passos encontra-se nas imagens abaixo.
+
+Procure por S3 na caixa de pesquisar
+![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/S3.png)
+
+Vá em Create Bucket
+![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/S3_CREATE.png)
+
+Escolha um nome e uma região para criar o Bucket e role ate o final da página e clique em Create Bucket.
+![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/S3_NOME.png)
+
+Para fazer o carregamento dos dados neste Bucket vamos criar uma SSH para fazer o upload por python utilizando a biblioteca boto3.
+
+![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/IAM.png)
+
+![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/USERS.png)
+
+![PIPELINE](https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/imagens/escolha_user.png)
 
 ## Como criar um banco de dados no Amazon RDS
 

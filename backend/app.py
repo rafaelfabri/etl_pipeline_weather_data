@@ -5,11 +5,11 @@ import sys
 import datetime
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path='/home/rafaelfabrichimidt/Documentos/projetos/python/variaveis_de_ambiente/etl_pipeline_weather_data/.env')
+load_dotenv()
 
 import os
 
-sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data')
+sys.path.append('~/etl_pipeline_weather_data')
 from backend.modulos.api import APICollector
 from backend.contrato.schema import ContratoSchema
 

@@ -9,7 +9,7 @@ import sys
 sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data')
 from backend.app_airflow import callAPICollector
 
-
+#inciando script
 
 with DAG('pipeline_weather_call_backend',
          start_date = pendulum.datetime(2023, 3, 1, tz = 'UTC'),

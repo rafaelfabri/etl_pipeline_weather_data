@@ -7,7 +7,7 @@ import pendulum
 
 import sys
 sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data')
-from backend.app_airflow import callAPI
+from backend.app_airflow import callAPICollector
 
 
 
@@ -17,15 +17,15 @@ with DAG('pipeline_weather_call_backend',
     
     start_code = EmptyOperator(task_id = 'Inicializacao_Codigo', dag = dag)
     
-    atribuicao_senhas = PythonOperator(python_callable = callAPI().senhas,
+    atribuicao_senhas = PythonOperator(python_callable = callAPICollector().senhas,
                                        task_id = 'definindo_credenciais',
                                        dag = dag)
     
-    criando_info_para_request = PythonOperator(python_callable = callAPI().infoDataToRequest,
+    criando_info_para_request = PythonOperator(python_callable = callAPICollector().infoDataToRequest,
                                                task_id = 'info_request',
                                                dag = dag)
     
-    instanciando_api = PythonOperator(python_callable = callAPI().callInstanceAPI,
+    instanciando_api = PythonOperator(python_callable = callAPICollector().callInstanceAPI,
                                       task_id = 'instanciando_APICollector',
                                       dag = dag)
 

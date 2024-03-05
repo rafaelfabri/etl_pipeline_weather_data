@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path='/home/rafaelfabrichimidt/Documentos/projetos/python/variaveis_de_ambiente/etl_pipeline_weather_data/.env')
 
 
-class callAPI():
+class callAPICollector():
 
 
     def senhas(self, **context):

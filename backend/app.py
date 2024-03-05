@@ -9,7 +9,7 @@ load_dotenv()
 
 import os
 
-sys.path.append('~/etl_pipeline_weather_data')
+sys.path.append('~/etl_pipeline_weather_data/')
 from backend.modulos.api import APICollector
 from backend.contrato.schema import ContratoSchema
 

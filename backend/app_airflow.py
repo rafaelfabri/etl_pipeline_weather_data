@@ -62,12 +62,3 @@ class callAPICollector():
         
         instance_api.startETL()
 
-        #context['task_instance'].xcom_push(key = 'credenciais_api', value = credenciais_api)
-        #context['task_instance'].xcom_push(key = 'instance_api', value = instance_api)        
-        
-    #def callStartETL(self, **context):
-        
-        #instance_api = context['task_instance_2'].xcom_pull(key = 'instance_api', task_ids = 'instanciando_APICollector')
-        
-        #instance_api.startETL()
-      

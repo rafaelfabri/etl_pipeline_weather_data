@@ -28,10 +28,6 @@ with DAG('pipeline_weather_call_backend',
     instanciando_api = PythonOperator(python_callable = callAPICollector().callInstanceAPI,
                                       task_id = 'instanciando_APICollector',
                                       dag = dag)
-
-    #comecando_etl = PythonOperator(python_callable = callAPI().callStartETL,
-    #                               task_id = 'executando_ETL',
-    #                               dag = dag)
     
     end_code = EmptyOperator(task_id = 'Encerrando_Codigo')
     

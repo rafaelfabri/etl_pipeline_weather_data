@@ -21,10 +21,9 @@ class APICollector():
         
        """
     
-    def __init__(self, credenciais_api, credenciais_aws, info_to_request):
-        
-        self._credenciais_api = credenciais_api
-        self._credenciais_aws = credenciais_aws        
+    def __init__(self, credenciais_api, info_to_request, bucketS3):
+        self.bucketS3 = bucketS3
+        self._credenciais_api = credenciais_api     
         self.query_request = self.createQuery(info_to_request)
         
         
@@ -87,16 +86,10 @@ class APICollector():
                                                                     self.extractDate()['end'])
             
             #self.load(df, NOME_ARQUIVO)
-            
-            return df, NOME_ARQUIVO
-            
+            self.bucketS3.storageUploadBucket(df, NOME_ARQUIVO, 'weather-data-storage', 'us-east-1')            
             print('startETL executado com sucesso')
-        
         else:
-            
             print('response vazio')
-    
-            return None, None
     
     
     def requestData(self, query):

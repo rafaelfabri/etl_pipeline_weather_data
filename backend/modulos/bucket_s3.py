@@ -8,7 +8,7 @@ import boto3
 
 
 
-class cloudFunctions():
+class BucketS3():
     
     def __init__(self, credential):
         

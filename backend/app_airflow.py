@@ -12,6 +12,7 @@ import os
 sys.path.append('home/ubuntu/etl_pipeline_weather_data/')
 from backend.modulos.api import APICollector
 from backend.contrato.schema import ContratoSchema
+from backend.modulos.bucket_s3 import BucketS3
 
 from dotenv import load_dotenv
 
@@ -56,10 +57,10 @@ class callAPICollector():
         credenciais_api = context['task_instance'].xcom_pull(key = 'credenciais_api', task_ids = 'definindo_credenciais')
         credenciais_aws = context['task_instance'].xcom_pull(key = 'credenciais_aws', task_ids = 'definindo_credenciais')
         info_to_request = context['task_instance'].xcom_pull(key = 'info_to_request', task_ids = 'info_request')
-        
-        instance_api = APICollector(credenciais_api, 
-                                    credenciais_aws, 
-                                    info_to_request)    
+        bucketS3 = BucketS3(credenciais_aws)
+        instance_api = APICollector(credenciais_api,  
+                                    info_to_request,
+                                    bucketS3)    
         
         instance_api.startETL()
 

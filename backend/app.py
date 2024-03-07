@@ -17,7 +17,7 @@ print(sys.path)
 #sys.path.append('home/ubuntu/etl_pipeline_weather_data/')
 from backend.modulos.api import APICollector
 from backend.contrato.schema import ContratoSchema
-from backend.modulos.cloud import cloudFunctions
+from backend.modulos.bucket_s3 import BucketS3
 
 
 
@@ -48,18 +48,11 @@ def main():
                        'lat_long'  : '-23.7245,-46.6775',
                        'file'      : 'csv'}
     
-
+    bucketS3 = BucketS3(credenciais_aws)
     #instanciando API
-    instance_api = APICollector(credenciais_api, credenciais_aws, info_to_request)    
+    instance_api = APICollector(credenciais_api, info_to_request, bucketS3)    
     
-    df, NOME_ARQUIVO = instance_api.startETL()
-    
-    if df is not None:
-        
-        
-        cf = cloudFunctions(credenciais_aws)
-        
-        cf.storageUploadBucket(df, NOME_ARQUIVO, 'weather-data-storage', 'us-east-1')
+    instance_api.startETL()
     
   
 

@@ -3,7 +3,6 @@ from requests.auth import HTTPBasicAuth
 import pandas as pd
 import csv
 import datetime
-import boto3
 
 
 
@@ -84,7 +83,12 @@ class APICollector():
             
             df = self.transformDataframe(df)
             
-            self.loadBucketS3(df)
+            NOME_ARQUIVO = 'SAO PAULO-WEATHER-{}-{}.parquet'.format(self.extractDate()['start'],
+                                                                    self.extractDate()['end'])
+            
+            #self.load(df, NOME_ARQUIVO)
+            
+            return df, NOME_ARQUIVO
             
             print('startETL executado com sucesso')
         
@@ -92,6 +96,7 @@ class APICollector():
             
             print('response vazio')
     
+            return None, None
     
     
     def requestData(self, query):
@@ -158,25 +163,21 @@ class APICollector():
     
     
     
-    def loadBucketS3(self, df):
+    def load(self, df, NOME_ARQUIVO):
                 
-        NOME_ARQUIVO = 'SAO PAULO-WEATHER-{}-{}.parquet'.format(self.extractDate()['start'],
-                                                                self.extractDate()['end'])
+
         
         df.to_parquet(NOME_ARQUIVO)
         
-        AWS_ACCESS_KEY = self._credenciais_aws['aws_access_key_id']
-        AWS_SECRET_KEY = self._credenciais_aws['aws_secret_access_key']
-        AWS_S3_BUCKET_NAME = 'weather-data-storage'
-        AWS_REGION = 'us-east-1'
         
         
-        s3_client = boto3.client(service_name = 's3',
-                                 region_name = AWS_REGION,
-                                 aws_access_key_id = AWS_ACCESS_KEY,
-                                 aws_secret_access_key = AWS_SECRET_KEY)
         
-        s3_client.upload_file(NOME_ARQUIVO, AWS_S3_BUCKET_NAME, NOME_ARQUIVO)
+    #    s3_client = boto3.client(service_name = 's3',
+    #                             region_name = AWS_REGION,
+    #                             aws_access_key_id = AWS_ACCESS_KEY,
+    #                             aws_secret_access_key = AWS_SECRET_KEY)
+        
+    #    s3_client.upload_file(NOME_ARQUIVO, AWS_S3_BUCKET_NAME, NOME_ARQUIVO)
     
     
     

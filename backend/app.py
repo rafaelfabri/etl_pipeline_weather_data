@@ -4,16 +4,20 @@ import pandas as pd
 import sys
 import datetime
 from dotenv import load_dotenv
-
-load_dotenv()
-
 import os
 
-#sys.path.append('rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data/')
-sys.path.append('home/ubuntu/etl_pipeline_weather_data/')
+load_dotenv('/home/rafaelfabrichimidt/Documentos/projetos/python/variaveis_de_ambiente/etl_pipeline_weather_data/.env')
 
+
+sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data/')
+print(sys.path)
+
+#os.path.dirname('rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data/')
+
+#sys.path.append('home/ubuntu/etl_pipeline_weather_data/')
 from backend.modulos.api import APICollector
 from backend.contrato.schema import ContratoSchema
+from backend.modulos.cloud import cloudFunctions
 
 
 
@@ -24,8 +28,8 @@ def senhas():
     credenciais_api = {'login': os.environ.get('LOGIN_API_WEATHER'),
                        'senha': os.environ.get('SENHA_API_WEATHER')}
     
-    credenciais_aws = {'aws_access_key_id': os.environ.get('LOGIN_AWS_S3'),
-                       'aws_secret_access_key': os.environ.get('SENHA_AWS_S3')}
+    credenciais_aws = {'access_key_id': os.environ.get('LOGIN_AWS_S3'),
+                       'secret_access_key': os.environ.get('SENHA_AWS_S3')}
         
     
     return credenciais_api, credenciais_aws
@@ -48,7 +52,15 @@ def main():
     #instanciando API
     instance_api = APICollector(credenciais_api, credenciais_aws, info_to_request)    
     
-    instance_api.startETL()
+    df, NOME_ARQUIVO = instance_api.startETL()
+    
+    if df is not None:
+        
+        
+        cf = cloudFunctions(credenciais_aws)
+        
+        cf.storageUploadBucket(df, NOME_ARQUIVO, 'weather-data-storage', 'us-east-1')
+    
   
 
 if __name__ == "__main__":

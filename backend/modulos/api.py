@@ -3,6 +3,9 @@ from requests.auth import HTTPBasicAuth
 import pandas as pd
 import csv
 import datetime
+import sys
+
+
 
 
 
@@ -21,10 +24,10 @@ class APICollector():
         
        """
     
-    def __init__(self, credenciais_api, credenciais_aws, info_to_request):
+    def __init__(self, credenciais_api, BucketS3, info_to_request):
         
         self._credenciais_api = credenciais_api
-        self._credenciais_aws = credenciais_aws        
+        self.BucketS3 = BucketS3        
         self.query_request = self.createQuery(info_to_request)
         
         
@@ -86,7 +89,7 @@ class APICollector():
             NOME_ARQUIVO = 'SAO PAULO-WEATHER-{}-{}.parquet'.format(self.extractDate()['start'],
                                                                     self.extractDate()['end'])
             
-            #self.load(df, NOME_ARQUIVO)
+            self.BucketS3.storageUploadBucket(df, NOME_ARQUIVO)
             
             return df, NOME_ARQUIVO
             
@@ -96,7 +99,6 @@ class APICollector():
             
             print('response vazio')
     
-            return None, None
     
     
     def requestData(self, query):

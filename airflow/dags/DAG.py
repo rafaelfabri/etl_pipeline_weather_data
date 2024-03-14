@@ -7,14 +7,14 @@ import pendulum
 
 import sys
 #sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data')
-sys.path.append('~/etl_pipeline_weather_data')
+sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data/')
 from backend.app_airflow import callAPICollector
 
 #inciando script
 
-with DAG('pipeline_weather_call_backend',
-         start_date = pendulum.datetime(2023, 3, 1, tz = 'UTC'),
-         schedule_interval = '0 1 * * *') as dag:
+with DAG('pipeline_weather_call_backend_',
+         start_date = pendulum.datetime(2024, 3, 12, tz = 'UTC'),
+         schedule_interval = '*/5 * * * *') as dag:
     
     start_code = EmptyOperator(task_id = 'Inicializacao_Codigo', dag = dag)
     

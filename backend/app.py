@@ -10,15 +10,13 @@ load_dotenv('/home/rafaelfabrichimidt/Documentos/projetos/python/variaveis_de_am
 
 
 sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data/')
-print(sys.path)
 
 #os.path.dirname('rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data/')
 
 #sys.path.append('home/ubuntu/etl_pipeline_weather_data/')
 from backend.modulos.api import APICollector
 from backend.contrato.schema import ContratoSchema
-from backend.modulos.cloud import cloudFunctions
-
+from backend.modulos.bucket_s3 import BucketS3
 
 
 
@@ -48,18 +46,19 @@ def main():
                        'lat_long'  : '-23.7245,-46.6775',
                        'file'      : 'csv'}
     
+    instance_BucketS3 = BucketS3(credenciais_aws, 'weather-data-storage', 'us-east-1')
 
     #instanciando API
-    instance_api = APICollector(credenciais_api, credenciais_aws, info_to_request)    
+    instance_api = APICollector(credenciais_api, instance_BucketS3, info_to_request)    
     
-    df, NOME_ARQUIVO = instance_api.startETL()
+    instance_api.startETL()
     
-    if df is not None:
+    #if df is not None:
         
         
-        cf = cloudFunctions(credenciais_aws)
+        #cf = cloudFunctions(credenciais_aws)
         
-        cf.storageUploadBucket(df, NOME_ARQUIVO, 'weather-data-storage', 'us-east-1')
+        #cf.storageUploadBucket(df, NOME_ARQUIVO, 'weather-data-storage', 'us-east-1')
     
   
 

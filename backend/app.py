@@ -6,10 +6,10 @@ import datetime
 from dotenv import load_dotenv
 import os
 
-load_dotenv('/home/rafaelfabrichimidt/Documentos/projetos/python/variaveis_de_ambiente/etl_pipeline_weather_data/.env')
+load_dotenv('/home/ubuntu/.env')
 
 
-sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data/')
+sys.path.append('/home/ubuntu/etl_pipeline_weather_data/')
 
 #os.path.dirname('rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data/')
 

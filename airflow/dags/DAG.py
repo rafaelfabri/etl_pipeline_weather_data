@@ -13,7 +13,7 @@ from backend.app_airflow import callAPICollector
 #inciando script
 
 with DAG('pipeline_weather_call_backend_',
-         start_date = pendulum.datetime(2024, 3, 12, tz = 'UTC'),
+         start_date = pendulum.datetime(2024, 3, 17, tz = 'UTC'),
          schedule_interval = '*/5 * * * *') as dag:
     
     start_code = EmptyOperator(task_id = 'Inicializacao_Codigo', dag = dag)

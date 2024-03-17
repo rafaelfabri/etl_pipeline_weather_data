@@ -154,6 +154,7 @@ protobuf==4.21.12
 psutil==5.9.5
 ptyprocess==0.7.0
 pure-eval==0.2.2
+pyarrow==15.0.0
 pycodestyle==2.11.1
 pycparser==2.21
 pydantic==2.4.2
@@ -172,6 +173,7 @@ PyQtWebEngine==5.15.6
 PyQtWebEngine-Qt5==5.15.2
 python-daemon==3.0.1
 python-dateutil==2.8.2
+python-dotenv==1.0.1
 python-lsp-black==2.0.0
 python-lsp-jsonrpc==1.1.2
 python-lsp-server==1.9.0

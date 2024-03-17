@@ -9,7 +9,9 @@ import datetime
 import os
 
 #sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data')
-sys.path.append('home/ubuntu/etl_pipeline_weather_data/')
+sys.path.append('/home/ubuntu/etl_pipeline_weather_data/')
+
+
 from backend.modulos.api import APICollector
 from backend.contrato.schema import ContratoSchema
 from backend.modulos.bucket_s3 import BucketS3
@@ -17,7 +19,8 @@ from backend.modulos.bucket_s3 import BucketS3
 
 from dotenv import load_dotenv
 
-load_dotenv('/home/rafaelfabrichimidt/Documentos/projetos/python/variaveis_de_ambiente/etl_pipeline_weather_data/.env')
+load_dotenv('/home/ubuntu/.env')
+
 
 
 class callAPICollector():

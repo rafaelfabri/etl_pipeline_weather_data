@@ -6,8 +6,8 @@ from airflow.models import DAG
 import pendulum
 
 import sys
-sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data')
-sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data/')
+sys.path.append('/home/ubuntu/etl_pipeline_weather_data/')
+#sys.path.append('/home/rafaelfabrichimidt/Documentos/projetos/python/etl_pipeline_weather_data/')
 
 from backend.app_airflow import callAPICollector
 

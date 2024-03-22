@@ -133,6 +133,6 @@ airflow scheduler
 
 ## como acessar o airflow e monitorar a execução 
 
-escrever...
+https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/video/video.mp4
 
 

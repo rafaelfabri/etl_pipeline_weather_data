@@ -135,4 +135,6 @@ airflow scheduler
 
 https://github.com/rafaelfabri/etl_pipeline_weather_data/blob/main/video/video.mp4
 
+https://github.com/rafaelfabri/etl_pipeline_weather_data/assets/59238686/6746f670-fdf1-4d0c-8467-5f2d13e9624e
+
 
